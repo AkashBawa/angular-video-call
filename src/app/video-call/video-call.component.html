@@ -1,0 +1,133 @@
+
+
+<div class="main">
+    <div class="main__left">
+
+        <div class="main__videos">
+
+            <div id="video-grid" #hardwareVideo></div>
+
+        </div>
+        <div class="main__controls">
+            <div class="main__controls__block">
+              <div (click)="playStop()"
+              class="main__controls__button main__video__button">
+                  <div class="main__matIcon__button" *ngIf="!videoCallService.myVideoOff; else videoOff">
+                    <mat-icon>videocam</mat-icon>
+                    <span>Stop Video</span>
+                  </div>
+
+                  <ng-template #videoOff>
+                    <mat-icon class="stop">videocam_off</mat-icon>
+                    <span>Play Video</span>
+                  </ng-template>
+              </div>
+
+              <div (click)="muteUnmute()"
+              class="main__controls__button main__mute__button">
+
+                    <div class="main__matIcon__button" *ngIf="!videoCallService.myMicMute; else micOff">
+                      <mat-icon>mic</mat-icon>
+                      <span>Mute</span>
+                    </div>
+
+                    <ng-template #micOff>
+                      <mat-icon class="unmute">mic_off</mat-icon>
+                      <span>Unmute</span>
+                    </ng-template>
+              </div>
+            </div>
+            <div class="main__controls__block">
+
+                <!-- <div class="main__controls__button">
+                    <i class="fas fa-user-friends"></i>
+                    <span>Participants</span>
+                </div> -->
+
+                <div (click)="recordScreen()" style="width: 100px;"
+                class="main__controls__button">
+                    <div class="main__matIcon__button" *ngIf="!videoCallService.startRecording; else startRecording">
+                      <mat-icon>play_circle_filled</mat-icon>
+                      <span>Start Recording</span>
+                    </div>
+
+                    <ng-template #startRecording>
+                      <mat-icon class="recordScreen">pause_circle_filled</mat-icon>
+                      <span>Stop Recording</span>
+                    </ng-template>
+                </div>
+
+                <div (click)="snapShot()"
+                class="main__controls__button">
+                        <mat-icon>camera</mat-icon>
+                        <span>Snapshot</span>
+                </div>
+
+                <div (click)="screen_share()" class="main__controls__button" style="width: 100px;">
+
+                  <div class="main__matIcon__button"
+                  *ngIf="!videoCallService.myScreenShare; else screenShareOn">
+                    <mat-icon>stop_screen_share</mat-icon>
+                    <span>Screen Share</span>
+                  </div>
+
+                    <ng-template #screenShareOn>
+                      <mat-icon class="shareScreen">screen_share</mat-icon>
+                      <span>Stop Share</span>
+                    </ng-template>
+                </div>
+                <!-- <div class="main__controls__button">
+                    <mat-icon>chat</mat-icon>
+
+                    <span>Chat</span>
+                </div> -->
+            </div>
+            <div class="main__controls__block">
+                <div (click)="leaveMeeting()" class="main__controls__button">
+                    <!-- <mat-icon>exit_to_app</mat-icon> -->
+                    <span class="leave_meeting">Leave Meeting</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main__right">
+
+
+      <div class="main__header">
+        <h4>My peer id:</h4>
+        <h5>{{mypeerId}}</h5>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Join other room</mat-label>
+          <input matInput placeholder="Enter room id..." [(ngModel)]="authorId">
+          <mat-icon matSuffix>room</mat-icon>
+          <mat-hint>E.g:9435de...</mat-hint>
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" (click)="connect()">Connect</button> <br>
+        <button mat-raised-button color="primary" (click)="videoConnect()">videoConnect</button>
+
+      </div>
+        <!-- <div class="main__header">
+            <h6>Chat</h6>
+        </div>
+        <div class="main__chat__window">
+            <ul class="messages">
+
+            </ul>
+        </div>
+        <div class="main__message__container">
+            <input type="text" id="chat_message" placeholder="Type message here...">
+        </div> -->
+    </div>
+</div>
+
+<div id="download">
+  <img id="scream" width="220" height="277" src="https://material.angular.io/assets/img/examples/shiba2.jpg" alt="The Scream">
+  <canvas #canvas id="canvas" width="1024" height="768">canvas</canvas>
+
+  <img #screenshot_img>
+  <a #downloadLink></a>
+
+</div>
