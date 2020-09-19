@@ -134,14 +134,16 @@ video {
 .main__message__container {
   padding: 22px 12px;
   display: flex;
+  justify-content: flex-end;
+  color: white;
 }
 
-.main__message__container input {
-  flex-grow: 1;
-  background-color: transparent;
-  border: none;
-  color: #F5F5F5;
-}
+// .main__message__container button {
+//   flex-grow: 1;
+//   background-color: transparent;
+//   border: none;
+//   color: #F5F5F5;
+// }
 
 .messages {
   color: white;

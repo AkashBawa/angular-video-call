@@ -26,6 +26,10 @@ export class VideoCallComponent implements OnInit {
   myShareScreenStream: any;
   call: any;
 
+  timer: any;
+  recordedBlobs: Array<any> = [];
+  mediaRecorder: any;
+
   private svg: d3.Selection<Element, any, any, any>
   private canvasNode: HTMLCanvasElement
 
@@ -226,38 +230,114 @@ export class VideoCallComponent implements OnInit {
   };
 
   recordScreen() {
-    this.videoCallService.recordScreenButton()
+
+    if(this.videoCallService.startRecording) {
+      clearInterval(this.timer)
+      document.getElementById("status").style.display="none"
+      console.log("stop recording up")
+      this.mediaRecorder.stop();
+      console.log("stop recording down")
+      document.getElementById("status").innerHTML = "Stopping...."
+      // let recordedBlo = new Blob(recordedBlobs, { type: 'video/webm' });
+      // my_camera.src = window.URL.createObjectURL(recordedBlo);
+      // download_link.href = my_camera.src;
+      // download_link.download = 'RecordedVideo.webm';
+
+      document.getElementById("download_link").style.display = "inline"
+    } else {
+        var time: number = 0;
+        this.timer  = setInterval(()=>{
+          time++
+          document.getElementById("status").innerHTML = Math.floor(time/60) +":"+ time%60 + " Recording..."
+        },1000)
+        document.getElementById("status").style.display="inline"
+        document.getElementById("status").innerHTML = "Recording..."
+        this.recordedBlobs = [];
+        let options = {mimeType: 'video/webm;codecs=vp9,opus'};
+        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+          console.error(`${options.mimeType} is not supported`);
+          options = {mimeType: 'video/webm;codecs=vp8,opus'};
+          if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+            console.error(`${options.mimeType} is not supported`);
+            options = {mimeType: 'video/webm'};
+            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+              console.error(`${options.mimeType} is not supported`);
+              options = {mimeType: ''};
+            }
+          }
+        }
+    let videoGrid = this.hardwareVideo.nativeElement;
+        console.log(videoGrid.childNodes[0])
+        try {
+          this.mediaRecorder = new MediaRecorder(videoGrid.childNodes[0].srcObject, options);
+        } catch (e) {
+          console.error('Exception while creating MediaRecorder:', e);
+          return;
+        }
+
+        console.log('Created MediaRecorder', this.mediaRecorder, 'with options', options);
+
+        this.mediaRecorder.onstop = (event) => {
+          console.log('Recorder stopped: ', event);
+          console.log('Recorded Blobs: ', this.recordedBlobs);
+        };
+        this.mediaRecorder.ondataavailable = handleDataAvailable;
+
+        var outSide = this;
+
+        function handleDataAvailable(event) {
+          console.log(event.data,'video event')
+          if (event.data && event.data.size > 0) {
+            console.log("inside handle data")
+            outSide.recordedBlobs.push(event.data);
+            document.getElementById("status").innerHTML = ""
+          }
+        }
+
+        this.mediaRecorder.start();
+        console.log('MediaRecorder started', this.mediaRecorder);
+
+    }
+
+  this.videoCallService.recordScreenButton()
+
   };
+
+  download() {
+    const blob = new Blob(this.recordedBlobs, {type: 'video/webm'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    this.myVideoStream.src =  url
+    a.style.display = 'none';
+    a.href = url;
+    a.download = 'ScreenRecoder$.webm';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => {
+      document.body.removeChild(a);
+      window.URL.revokeObjectURL(url);
+      document.getElementById("download_link").style.display = "none"
+    }, 100);
+
+  }
 
   snapShot() {
     this.videoCallService.snapShotButton();
 
-    let videoGrid = <HTMLDivElement> this.hardwareVideo.nativeElement;
+    let video = <HTMLVideoElement> this.hardwareVideo.nativeElement.childNodes[0];
 
-    var context = this.canvas.nativeElement.getContext("2d").drawImage(videoGrid, 0, 0, 1024, 768);
+    this.canvas.nativeElement.getContext("2d").drawImage(video, 0, 0, 1024, 768);
 
-    var picture: any = this.canvas.nativeElement.toDataURL("image/png");
+    this.downloadLink.nativeElement.href = this.canvas.nativeElement.toDataURL('image/png');
+    this.downloadLink.nativeElement.download = 'ScreenShot$.png';
+    this.downloadLink.nativeElement.click();
 
-    console.log(picture)
-
-    // let canvas = <HTMLCanvasElement> this.canvas.nativeElement; // declare a canvas element in your html
-
-    // var ctx = canvas.getContext("2d");
-
-    // ctx.drawImage(videoGrid, 10, 10);
-
-    // let ctx = canvas.getContext("2d");
-
-    // ctx.drawImage(videoGrid, 0, 0);
-
-    // var img = this.screenshot_img.nativeElement;
-
-    // // let dataUrl = canvas.toDataURL('image/png');
-    // // img.src = dataUrl;
-
-    // this.downloadLink.nativeElement.href = canvas.toDataURL('image/png');
-    // this.downloadLink.nativeElement.download = 'ScreenShot$.png';
-    // this.downloadLink.nativeElement.click();
+    // html2canvas(video).then(canvas => {
+    //   this.canvas.nativeElement.src = canvas.toDataURL();
+    //   this.downloadLink.nativeElement.href = canvas.toDataURL('image/png');
+    //   this.downloadLink.nativeElement.download = 'ScreenShot$.png';
+    //   this.downloadLink.nativeElement.click();
+    // });
 
   };
 

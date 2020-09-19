@@ -111,23 +111,27 @@
       </div>
         <!-- <div class="main__header">
             <h6>Chat</h6>
-        </div>
+        </div>-->
         <div class="main__chat__window">
             <ul class="messages">
 
             </ul>
         </div>
         <div class="main__message__container">
-            <input type="text" id="chat_message" placeholder="Type message here...">
-        </div> -->
+            <div class="w3-black record-bar w3-padding w3-round-large">
+              <div id="status" class="w3-text-red" style="margin-bottom: 10px; display: none;"></div>
+              <button mat-fab color="primary" style="display:none;" id="download_link" (click)="download()">
+                <mat-icon>get_app</mat-icon>
+              </button>
+            </div>
+        </div>
     </div>
 </div>
 
-<div id="download">
-  <img id="scream" width="220" height="277" src="https://material.angular.io/assets/img/examples/shiba2.jpg" alt="The Scream">
+
+<div id="download" style="display: none;">
   <canvas #canvas id="canvas" width="1024" height="768">canvas</canvas>
-
-  <img #screenshot_img>
+  <!-- <img #canvas> -->
   <a #downloadLink></a>
-
 </div>
+
