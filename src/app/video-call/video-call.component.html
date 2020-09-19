@@ -1,4 +1,8 @@
 
+<!-- <div *ngIf="showCallingBox" class="accept">
+  <button class="btn btn-success" (click)="acceptCall()">Accept</button>
+  <button class="btn btn-danger" (click)="rejectCall()">Reject</button>
+</div> -->
 
 <div class="main">
     <div class="main__left">
@@ -93,7 +97,6 @@
 
     <div class="main__right">
 
-
       <div class="main__header">
         <h4>My peer id:</h4>
         <h5>{{mypeerId}}</h5>
@@ -106,7 +109,7 @@
         </mat-form-field>
 
         <button mat-raised-button color="primary" (click)="connect()">Connect</button> <br>
-        <button mat-raised-button color="primary" (click)="videoConnect()">videoConnect</button>
+        <!-- <button mat-raised-button color="primary" (click)="videoConnect()">videoConnect</button> -->
 
       </div>
         <!-- <div class="main__header">
@@ -123,11 +126,31 @@
     </div>
 </div>
 
-<div id="download">
-  <img id="scream" width="220" height="277" src="https://material.angular.io/assets/img/examples/shiba2.jpg" alt="The Scream">
-  <canvas #canvas id="canvas" width="1024" height="768">canvas</canvas>
+<button type="button" id="modalopen" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+  Launch demo modal
+</button>
 
-  <img #screenshot_img>
-  <a #downloadLink></a>
-
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" data-backdrop="static" data-keyboard="false"
+ tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title" id="exampleModalLabel">Incomming call</h2>
+        <button type="button" class="close" id="closeCallModal" data-dismiss="modal" style="display: none;"
+          aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-footer">
+        <div *ngIf="showCallingBox" class="accept">
+          <button class="btn btn-success" (click)="acceptCall()">Accept</button>
+          <button class="btn btn-danger" (click)="rejectCall()">Reject</button>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
+
+
+
