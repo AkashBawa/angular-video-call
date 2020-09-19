@@ -60,8 +60,8 @@ video {
   flex-direction: column;
   justify-content: center;
   align-items: center;
+  min-width: 100px;
   padding: 8px 10px;
-  min-width: 80px;
   cursor: pointer;
   user-select: none;
 }
@@ -140,14 +140,16 @@ video {
 .main__message__container {
   padding: 22px 12px;
   display: flex;
+  justify-content: flex-end;
+  color: white;
 }
 
-.main__message__container input {
-  flex-grow: 1;
-  background-color: transparent;
-  border: none;
-  color: #F5F5F5;
-}
+// .main__message__container button {
+//   flex-grow: 1;
+//   background-color: transparent;
+//   border: none;
+//   color: #F5F5F5;
+// }
 
 .messages {
   color: white;
@@ -176,7 +178,6 @@ mat-icon {
 
 .shareScreen {
   border-radius: 5px;
-  padding: 0px 3px 0px;
   animation-name: recordScreen;
   animation-duration: 5s;
   animation-iteration-count: infinite;

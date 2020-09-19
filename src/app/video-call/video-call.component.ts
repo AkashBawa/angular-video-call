@@ -3,7 +3,7 @@ import { Router, ActivatedRoute, Params } from '@angular/router';
 import { MatSnackBar } from '@angular/material/snack-bar';
 
 import * as d3 from 'd3';
-declare var $: any 
+declare var $: any
 
 import html2canvas from 'html2canvas';
 
@@ -27,6 +27,10 @@ export class VideoCallComponent implements OnInit {
   myShareScreenStream: any;
   call: any;
 
+  timer: any;
+  recordedBlobs: Array<any> = [];
+  mediaRecorder: any;
+
   private svg: d3.Selection<Element, any, any, any>
   private canvasNode: HTMLCanvasElement
 
@@ -35,6 +39,8 @@ export class VideoCallComponent implements OnInit {
   @ViewChild('downloadLink') downloadLink: ElementRef;
   @ViewChild('screenshot_img') screenshot_img: ElementRef;
 
+  @ViewChild('myVideo') myVideo: ElementRef;
+  @ViewChild('otherUserVideo') otherUserVideo: ElementRef;
 
   constructor(
     public videoCallService: VideoCallService,
@@ -53,12 +59,23 @@ export class VideoCallComponent implements OnInit {
   showCallingBox : boolean = false;
   call : any;
   remoteConnection : any;
+
   ngAfterViewInit() {
-      
-      this.peer = new Peer();
+
+      // this.peer = new Peer();
+
+      this.peer = new Peer( undefined,
+        {
+          host: 'localhost',
+          port: 3000,
+          path: "/peerjs",
+          proxied: true
+        });
+
 
       this.peer.on('open',(myId)=>{
         console.log("my id is : ", myId)
+        this.mypeerId = myId;
       })
 
       this.peer.on('connection', function (conn) {
@@ -74,10 +91,11 @@ export class VideoCallComponent implements OnInit {
           console.log("connection is open now")
         })
       });
-    
-      let videoGrid = this.hardwareVideo.nativeElement;
 
-      let myVideo = this.renderer.createElement('video');
+      // let videoGrid = this.hardwareVideo.nativeElement;
+
+      // let myVideo = this.renderer.createElement('video');
+      let myVideo = this.myVideo.nativeElement;
       myVideo.muted = true;
 
       this._navigator = <any>navigator;
@@ -93,7 +111,7 @@ export class VideoCallComponent implements OnInit {
             myVideo.play();
           };
 
-          videoGrid.appendChild(myVideo);
+          // videoGrid.appendChild(myVideo);
       }, (err: any) => {
           console.log('failed to get stream ',err)
       })
@@ -106,7 +124,6 @@ export class VideoCallComponent implements OnInit {
         this.showModal();
         this.playAudio();
       })
-      
 
       this.peer.on('close', function (closed : any){
         console.log("closed executed  ")
@@ -115,8 +132,7 @@ export class VideoCallComponent implements OnInit {
       this.peer.on('disconnectes', function (disconnecd: any){
         console.log("disconnected executed ")
       });
-    
-      
+
       this.peer.on('error', function (err : any){
         console.log("error executed  ")
       });
@@ -138,21 +154,22 @@ export class VideoCallComponent implements OnInit {
     this.showCallingBox = false;
     $('#closeCallModal').click();
     this.pauseAudio();
-    let videoGrid = this.hardwareVideo.nativeElement;
+    // let videoGrid = this.hardwareVideo.nativeElement;
 
     console.log("accept call");
     this.call.answer(this.myVideoStream);
 
-    let myVideo = this.renderer.createElement('video');
-    
+    // let myVideo = this.renderer.createElement('video');
+    let otherUserVideo = this.otherUserVideo.nativeElement;
+
     this.call.on('stream', (remoteStream: any) => {
 
       console.log("stream in  ngAfterViewInit")
-      myVideo.srcObject = remoteStream
-      myVideo.onloadedmetadata = function (e) {
-          myVideo.play();
+      otherUserVideo.srcObject = remoteStream
+      otherUserVideo.onloadedmetadata = function (e) {
+          otherUserVideo.play();
       };
-      videoGrid.appendChild(myVideo);
+      // videoGrid.appendChild(myVideo);
     }, (err: any) => {
       console.log('failed to get stream ',err)
     });
@@ -170,7 +187,7 @@ export class VideoCallComponent implements OnInit {
   }
 
   connect() {
-    // console.log('connect', this.authorId)
+    console.log('connect', this.authorId)
 
     var conn = this.peer.connect(this.authorId);
 
@@ -187,9 +204,10 @@ export class VideoCallComponent implements OnInit {
 
   videoConnect() {
 
-    let videoGrid = this.hardwareVideo.nativeElement;
+    // let videoGrid = this.hardwareVideo.nativeElement;
 
-    let video = this.renderer.createElement('video');
+    // let video = this.renderer.createElement('video');
+    let video = this.otherUserVideo.nativeElement;
 
     var localvar = this.peer;
     var otherId = this.authorId;
@@ -203,7 +221,7 @@ export class VideoCallComponent implements OnInit {
       video.onloadedmetadata = function (e) {
           video.play();
       };
-      videoGrid.appendChild(video);
+      // videoGrid.appendChild(video);
     }, (err: any) => {
       console.log('failed to get stream ',err)
     });
@@ -227,7 +245,7 @@ export class VideoCallComponent implements OnInit {
 
   videoDistroy (){
     this.peer.destroy();        // disconnect from peer server and
-  } 
+  }
 
   playStop() {
     const enabled = this.myVideoStream.getVideoTracks()[0].enabled;
@@ -255,28 +273,43 @@ export class VideoCallComponent implements OnInit {
   };
 
   screen_share() {
-    let videoGrid = this.hardwareVideo.nativeElement;
+    // let videoGrid = this.hardwareVideo.nativeElement;
 
     var localvar = this.peer;
     var otherId = this.authorId;
 
+    this._navigator = <any>navigator;
     var _this = this;
 
+    let myVideo = this.myVideo.nativeElement;
+    myVideo.muted = true;
+
     if (this.videoCallService.myScreenShare) {
-        videoGrid.removeChild(videoGrid.childNodes[0])
-        this.myShareScreenStream.getTracks()[0].stop()
+
+      this._navigator.getUserMedia({ video: true, audio: true }, (stream: any) => {
+        // console.log(stream, 'workkkkk')
+          this.myVideoStream = stream;
+          myVideo.srcObject = stream
+
+          myVideo.onloadedmetadata = function (e) {
+            myVideo.play();
+          };
+
+          this.call = localvar.call(otherId, myVideo.srcObject);
+          console.log('my video stream')
+          // videoGrid.appendChild(myVideo);
+      }, (err: any) => {
+          console.log('failed to get stream ',err)
+      })
 
     } else {
-        this._navigator = <any>navigator;
 
-
-        let myVideo = this.renderer.createElement('video');
-        myVideo.muted = true;
+        // let myVideo = this.renderer.createElement('video');
 
         this._navigator.mediaDevices.getDisplayMedia({ video: true, audio: false })
         .then(function (stream: any) {
 
-            _this.myShareScreenStream = stream;
+            _this.myVideoStream = stream;
 
             myVideo.srcObject = stream
 
@@ -284,22 +317,10 @@ export class VideoCallComponent implements OnInit {
                 myVideo.play();
             };
 
-            videoGrid.insertBefore(myVideo, videoGrid.firstChild);
+            // videoGrid.insertBefore(myVideo, videoGrid.firstChild);
 
-            var call = localvar.call(otherId, stream);
+            this.call = localvar.call(otherId, myVideo.srcObject);
             console.log('screen share')
-
-            call.on('ss', (remoteStream: any) => {
-              console.log('screen share')
-
-              myVideo.srcObject = remoteStream
-              myVideo.onloadedmetadata = function (e) {
-                  myVideo.play();
-              };
-              videoGrid.appendChild(myVideo);
-            }, (err: any) => {
-              console.log('failed to get stream ',err)
-            })
           })
           .catch(function (error: any) {
             console.log("Something went wrong!" +error);
@@ -311,38 +332,112 @@ export class VideoCallComponent implements OnInit {
   };
 
   recordScreen() {
-    this.videoCallService.recordScreenButton()
+
+    if(this.videoCallService.startRecording) {
+      clearInterval(this.timer)
+      document.getElementById("status").style.display="none"
+      console.log("stop recording up")
+      this.mediaRecorder.stop();
+      console.log("stop recording down")
+      document.getElementById("status").innerHTML = "Stopping...."
+      // let recordedBlo = new Blob(recordedBlobs, { type: 'video/webm' });
+      // my_camera.src = window.URL.createObjectURL(recordedBlo);
+      // download_link.href = my_camera.src;
+      // download_link.download = 'RecordedVideo.webm';
+
+      document.getElementById("download_link").style.display = "inline"
+    } else {
+        var time: number = 0;
+        this.timer  = setInterval(()=>{
+          time++
+          document.getElementById("status").innerHTML = Math.floor(time/60) +":"+ time%60 + " Recording..."
+        },1000)
+        document.getElementById("status").style.display="inline"
+        document.getElementById("status").innerHTML = "Recording..."
+        this.recordedBlobs = [];
+        let options = {mimeType: 'video/webm;codecs=vp9,opus'};
+        if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+          console.error(`${options.mimeType} is not supported`);
+          options = {mimeType: 'video/webm;codecs=vp8,opus'};
+          if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+            console.error(`${options.mimeType} is not supported`);
+            options = {mimeType: 'video/webm'};
+            if (!MediaRecorder.isTypeSupported(options.mimeType)) {
+              console.error(`${options.mimeType} is not supported`);
+              options = {mimeType: ''};
+            }
+          }
+        }
+        let otherUserVideo = this.otherUserVideo.nativeElement;
+        try {
+          this.mediaRecorder = new MediaRecorder(otherUserVideo.srcObject, options);
+        } catch (e) {
+          console.error('Exception while creating MediaRecorder:', e);
+          return;
+        }
+
+        console.log('Created MediaRecorder', this.mediaRecorder, 'with options', options);
+
+        this.mediaRecorder.onstop = (event) => {
+          console.log('Recorder stopped: ', event);
+          console.log('Recorded Blobs: ', this.recordedBlobs);
+        };
+        this.mediaRecorder.ondataavailable = handleDataAvailable;
+
+        var outSide = this;
+
+        function handleDataAvailable(event) {
+          console.log(event.data,'video event')
+          if (event.data && event.data.size > 0) {
+            console.log("inside handle data")
+            outSide.recordedBlobs.push(event.data);
+            document.getElementById("status").innerHTML = ""
+          }
+        }
+
+        this.mediaRecorder.start();
+        console.log('MediaRecorder started', this.mediaRecorder);
+
+    }
+
+  this.videoCallService.recordScreenButton()
+
   };
+
+  download() {
+    const blob = new Blob(this.recordedBlobs, {type: 'video/webm'});
+    const url = URL.createObjectURL(blob);
+
+    const a = this.downloadLink.nativeElement;
+    // this.myVideoStream.src =  url
+    a.style.display = 'none';
+    a.href = url;
+    a.download = 'ScreenRecoder$.webm';
+    a.click();
+    setTimeout(() => {
+      window.URL.revokeObjectURL(url);
+      document.getElementById("download_link").style.display = "none"
+    }, 100);
+
+  }
 
   snapShot() {
     this.videoCallService.snapShotButton();
 
-    let videoGrid = <HTMLDivElement> this.hardwareVideo.nativeElement;
+    let video = <HTMLVideoElement> this.otherUserVideo.nativeElement;
 
-    var context = this.canvas.nativeElement.getContext("2d").drawImage(videoGrid, 0, 0, 1024, 768);
+    this.canvas.nativeElement.getContext("2d").drawImage(video, 0, 0, 1024, 768);
 
-    var picture: any = this.canvas.nativeElement.toDataURL("image/png");
+    this.downloadLink.nativeElement.href = this.canvas.nativeElement.toDataURL('image/png');
+    this.downloadLink.nativeElement.download = 'ScreenShot$.png';
+    this.downloadLink.nativeElement.click();
 
-    console.log(picture)
-
-    // let canvas = <HTMLCanvasElement> this.canvas.nativeElement; // declare a canvas element in your html
-
-    // var ctx = canvas.getContext("2d");
-
-    // ctx.drawImage(videoGrid, 10, 10);
-
-    // let ctx = canvas.getContext("2d");
-
-    // ctx.drawImage(videoGrid, 0, 0);
-
-    // var img = this.screenshot_img.nativeElement;
-
-    // // let dataUrl = canvas.toDataURL('image/png');
-    // // img.src = dataUrl;
-
-    // this.downloadLink.nativeElement.href = canvas.toDataURL('image/png');
-    // this.downloadLink.nativeElement.download = 'ScreenShot$.png';
-    // this.downloadLink.nativeElement.click();
+    // html2canvas(video).then(canvas => {
+    //   this.canvas.nativeElement.src = canvas.toDataURL();
+    //   this.downloadLink.nativeElement.href = canvas.toDataURL('image/png');
+    //   this.downloadLink.nativeElement.download = 'ScreenShot$.png';
+    //   this.downloadLink.nativeElement.click();
+    // });
 
   };
 

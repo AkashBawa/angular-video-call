@@ -9,7 +9,10 @@
 
         <div class="main__videos">
 
-            <div id="video-grid" #hardwareVideo></div>
+            <div id="video-grid" #hardwareVideo>
+              <video #myVideo></video>
+              <video #otherUserVideo></video>
+            </div>
 
         </div>
         <div class="main__controls">
@@ -48,9 +51,10 @@
                     <span>Participants</span>
                 </div> -->
 
-                <div (click)="recordScreen()" style="width: 100px;"
+                <div (click)="recordScreen()"
                 class="main__controls__button">
-                    <div class="main__matIcon__button" *ngIf="!videoCallService.startRecording; else startRecording">
+                    <div class="main__matIcon__button"
+                    *ngIf="!videoCallService.startRecording; else startRecording">
                       <mat-icon>play_circle_filled</mat-icon>
                       <span>Start Recording</span>
                     </div>
@@ -67,7 +71,8 @@
                         <span>Snapshot</span>
                 </div>
 
-                <div (click)="screen_share()" class="main__controls__button" style="width: 100px;">
+                <div (click)="screen_share()"
+                class="main__controls__button">
 
                   <div class="main__matIcon__button"
                   *ngIf="!videoCallService.myScreenShare; else screenShareOn">
@@ -114,19 +119,31 @@
       </div>
         <!-- <div class="main__header">
             <h6>Chat</h6>
-        </div>
+        </div>-->
         <div class="main__chat__window">
             <ul class="messages">
 
             </ul>
         </div>
         <div class="main__message__container">
-            <input type="text" id="chat_message" placeholder="Type message here...">
-        </div> -->
+            <div class="w3-black record-bar w3-padding w3-round-large">
+              <div id="status" class="w3-text-red" style="margin-bottom: 10px; display: none;"></div>
+              <button mat-fab color="primary" style="display:none;" id="download_link" (click)="download()">
+                <mat-icon>get_app</mat-icon>
+              </button>
+            </div>
+        </div>
     </div>
 </div>
 
-<button type="button" id="modalopen" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+
+<div id="download" style="display: none;">
+  <canvas #canvas id="canvas" width="1024" height="768">canvas</canvas>
+  <!-- <img #canvas> -->
+  <a #downloadLink></a>
+</div>
+
+<button  style="display: none;" type="button" id="modalopen" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
   Launch demo modal
 </button>
 
