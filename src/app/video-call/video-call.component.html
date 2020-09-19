@@ -9,7 +9,10 @@
 
         <div class="main__videos">
 
-            <div id="video-grid" #hardwareVideo></div>
+            <div id="video-grid" #hardwareVideo>
+              <video #myVideo></video>
+              <video #otherUserVideo></video>
+            </div>
 
         </div>
         <div class="main__controls">
@@ -48,9 +51,10 @@
                     <span>Participants</span>
                 </div> -->
 
-                <div (click)="recordScreen()" style="width: 100px;"
+                <div (click)="recordScreen()"
                 class="main__controls__button">
-                    <div class="main__matIcon__button" *ngIf="!videoCallService.startRecording; else startRecording">
+                    <div class="main__matIcon__button"
+                    *ngIf="!videoCallService.startRecording; else startRecording">
                       <mat-icon>play_circle_filled</mat-icon>
                       <span>Start Recording</span>
                     </div>
@@ -67,7 +71,8 @@
                         <span>Snapshot</span>
                 </div>
 
-                <div (click)="screen_share()" class="main__controls__button" style="width: 100px;">
+                <div (click)="screen_share()"
+                class="main__controls__button">
 
                   <div class="main__matIcon__button"
                   *ngIf="!videoCallService.myScreenShare; else screenShareOn">
@@ -138,7 +143,7 @@
   <a #downloadLink></a>
 </div>
 
-<button type="button" id="modalopen" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
+<button  style="display: none;" type="button" id="modalopen" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal">
   Launch demo modal
 </button>
 
