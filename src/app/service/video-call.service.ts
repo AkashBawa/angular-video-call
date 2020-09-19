@@ -18,9 +18,9 @@ export class VideoCallService {
   constructor(private http: HttpClient) { }
 
   getVideoRoomId() {
-    this.http.get( this.API_URL +'/video/roomId' ).subscribe( (result) => {
-      console.log(result)
-    })
+    // this.http.get( this.API_URL +'/video/roomId' ).subscribe( (result) => {
+    //   console.log(result)
+    // })
   };
 
   micMuteUnmuteButton(selector: any) {
